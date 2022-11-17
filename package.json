@@ -1,0 +1,9 @@
+{
+  "name": "fontana",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node.js app for restaurant menu editing",
+  "author": "Paul Tiry",
+  "license": "MIT",
+  "type": "module"
+}
