@@ -7,6 +7,6 @@ allRoutes.get('/', (req, res) => {
   res.json({ endpoints: 'food/es for recipes in Spanish and food/cat for recipes in catalan' })
 })
 
-allRoutes.use('/food', foodsRouter)
+allRoutes.use('/', foodsRouter)
 
 export default allRoutes

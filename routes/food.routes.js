@@ -3,8 +3,10 @@ import Food from '../models/Food.model.js'
 
 const foodsRouter = Router()
 
-foodsRouter.get('/:lang', async (req, res) => {
+foodsRouter.get('/:lang/food', async (req, res) => {
   const { lang } = req.params
+
+  console.log('Lang: ', lang)
 
   try {
     const recipes = await Food.find({ lang })
@@ -17,7 +19,7 @@ foodsRouter.get('/:lang', async (req, res) => {
   }
 })
 
-foodsRouter.post('/:lang', async (req, res) => {
+foodsRouter.post('/:lang/food', async (req, res) => {
   const { lang } = req.params
   const recipe = req.body
 
