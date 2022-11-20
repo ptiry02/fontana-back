@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import Food from '../models/Food.model'
+import Food from '../models/Food.model.js'
 
 const foodsRouter = Router()
 
