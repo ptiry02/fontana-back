@@ -1,6 +1,7 @@
 import express from 'express'
 import logger from 'morgan'
 import cors from 'cors'
+import { rateLimit } from 'express-rate-limit'
 
 // Middleware configuration
 export default app => {
@@ -13,6 +14,15 @@ export default app => {
     cors({
       credentials: true,
       origin: process.env.ORIGIN || 'http://localhost:3000',
+    })
+  )
+  app.use(
+    rateLimit({
+      windowMs: 1000,
+      max: 100,
+      message: 'You have exceeded the limit of 100 calls in 1 second! Please slow down or you might break the server.',
+      standardHeaders: true,
+      legacyHeaders: false,
     })
   )
 
