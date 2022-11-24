@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import Food from '../models/Food.model.js'
+import isAuthenticated from '../midleware/jwt.middleware.js'
 
 const foodsRouter = Router()
 
@@ -19,7 +20,7 @@ foodsRouter.get('/:lang/food', async (req, res) => {
   }
 })
 
-foodsRouter.post('/:lang/food', async (req, res) => {
+foodsRouter.post('/:lang/food', isAuthenticated, async (req, res) => {
   const { lang } = req.params
   const recipe = req.body
 
