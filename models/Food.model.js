@@ -25,7 +25,7 @@ const Food = model(
         'medias raciones',
         'carnes',
         'complementos',
-        'pizza',
+        'pizzas',
         'torradas',
         'asados',
       ],

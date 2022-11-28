@@ -7,8 +7,6 @@ const foodsRouter = Router()
 foodsRouter.get('/:lang/food', async (req, res) => {
   const { lang } = req.params
 
-  console.log('Lang: ', lang)
-
   try {
     const recipes = await Food.find({ lang })
 
