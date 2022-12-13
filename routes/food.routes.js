@@ -1,14 +1,12 @@
 import { Router } from 'express'
-import Food from '../models/Food.model.js'
+import { Food_es, Food_cat } from '../models/Food.model.js'
 import isAuthenticated from '../midleware/jwt.middleware.js'
 
 const foodsRouter = Router()
 
-foodsRouter.get('/:lang/food', async (req, res) => {
-  const { lang } = req.params
-
+foodsRouter.get('/es/food', async (req, res) => {
   try {
-    const recipes = await Food.find({ lang })
+    const recipes = await Food_es.find()
 
     res.json(recipes)
   } catch (err) {
@@ -18,18 +16,49 @@ foodsRouter.get('/:lang/food', async (req, res) => {
   }
 })
 
-foodsRouter.post('/:lang/food', isAuthenticated, async (req, res) => {
-  const { lang } = req.params
-  const recipe = req.body
+foodsRouter.post(
+  '/es/food',
+  /* isAuthenticated, */ async (req, res) => {
+    const recipe = req.body
 
+    try {
+      const newRecipe = await Food_es.create(recipe)
+
+      res.json(newRecipe)
+    } catch (err) {
+      console.log('Error creating new recipe: ', err)
+
+      res.json({ ups: 'An error ocurred!', error: err })
+    }
+  }
+)
+
+foodsRouter.get('/cat/food', async (req, res) => {
   try {
-    const newRecipe = await Food.create({ ...recipe, lang })
+    const recipes = await Food_cat.find()
 
-    res.json(newRecipe)
+    res.json(recipes)
   } catch (err) {
-    console.log('Error creating new recipe: ', err)
+    console.log('Error fetching the recipes: ', err)
 
-    res.json({ ups: 'An error ocurred!', error: err })
+    res.json({ ups: 'There has been an error!', error: err })
   }
 })
+
+foodsRouter.post(
+  '/cat/food',
+  /* isAuthenticated, */ async (req, res) => {
+    const recipe = req.body
+
+    try {
+      const newRecipe = await Food_cat.create(recipe)
+
+      res.json(newRecipe)
+    } catch (err) {
+      console.log('Error creating new recipe: ', err)
+
+      res.json({ ups: 'An error ocurred!', error: err })
+    }
+  }
+)
 export default foodsRouter
