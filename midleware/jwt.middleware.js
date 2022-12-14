@@ -1,13 +1,15 @@
 import { expressjwt } from 'express-jwt'
 
+export const tokenSecret = process.env.TOKEN_SECRET || 'superTopSecret!'
+
 const getToken = req => {
-  const auth = req.headers.authorization
-  if (!auth || auth.split(' ')[0] !== 'Bearer') return null
-  return auth.split(' ')[1]
+  const token = req.signedCookies.access_token
+  if (!token) return null
+  return token
 }
 
 export default expressjwt({
-  secret: process.env.TOKEN_SECRET,
+  secret: tokenSecret,
   algorithms: ['HS256'],
   requestProperty: 'payload',
   getToken,

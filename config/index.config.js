@@ -2,6 +2,10 @@ import express from 'express'
 import logger from 'morgan'
 import cors from 'cors'
 import { rateLimit } from 'express-rate-limit'
+import cookieParser from 'cookie-parser'
+
+const front = process.env.ORIGIN || 'http://localhost:3000'
+const cookieSecret = process.env.COOKIE_SECRET || 'topSecret!'
 
 // Middleware configuration
 export default app => {
@@ -13,7 +17,7 @@ export default app => {
   app.use(
     cors({
       credentials: true,
-      origin: process.env.ORIGIN || 'http://localhost:3000',
+      origin: front,
     })
   )
   app.use(
@@ -31,4 +35,6 @@ export default app => {
   // To have acces to `body` property in the request
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
+
+  app.use(cookieParser(cookieSecret))
 }

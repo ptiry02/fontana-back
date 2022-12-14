@@ -16,22 +16,19 @@ foodsRouter.get('/es/food', async (req, res) => {
   }
 })
 
-foodsRouter.post(
-  '/es/food',
-  /* isAuthenticated, */ async (req, res) => {
-    const recipe = req.body
+foodsRouter.post('/es/food', isAuthenticated, async (req, res) => {
+  const recipe = req.body
 
-    try {
-      const newRecipe = await Food_es.create(recipe)
+  try {
+    const newRecipe = await Food_es.create(recipe)
 
-      res.json(newRecipe)
-    } catch (err) {
-      console.log('Error creating new recipe: ', err)
+    res.json(newRecipe)
+  } catch (err) {
+    console.log('Error creating new recipe: ', err)
 
-      res.json({ ups: 'An error ocurred!', error: err })
-    }
+    res.json({ ups: 'An error ocurred!', error: err })
   }
-)
+})
 
 foodsRouter.get('/cat/food', async (req, res) => {
   try {
@@ -45,20 +42,17 @@ foodsRouter.get('/cat/food', async (req, res) => {
   }
 })
 
-foodsRouter.post(
-  '/cat/food',
-  /* isAuthenticated, */ async (req, res) => {
-    const recipe = req.body
+foodsRouter.post('/cat/food', isAuthenticated, async (req, res) => {
+  const recipe = req.body
 
-    try {
-      const newRecipe = await Food_cat.create(recipe)
+  try {
+    const newRecipe = await Food_cat.create(recipe)
 
-      res.json(newRecipe)
-    } catch (err) {
-      console.log('Error creating new recipe: ', err)
+    res.json(newRecipe)
+  } catch (err) {
+    console.log('Error creating new recipe: ', err)
 
-      res.json({ ups: 'An error ocurred!', error: err })
-    }
+    res.json({ ups: 'An error ocurred!', error: err })
   }
-)
+})
 export default foodsRouter
