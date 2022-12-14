@@ -4,51 +4,36 @@ import isAuthenticated from '../midleware/jwt.middleware.js'
 
 const foodsRouter = Router()
 
-foodsRouter.get('/es/food', async (req, res) => {
+foodsRouter.get('/', async (req, res) => {
   try {
-    const recipes = await Food_es.find()
+    const recipes_es = await Food_es.find()
+    const recipes_cat = await Food_cat.find()
+    const categories_es = Food_es.schema.path('category').enumValues
+    const categories_cat = Food_cat.schema.path('category').enumValues
 
-    res.json(recipes)
+    res.status(200).json({
+      es: { recipes: recipes_es, categories: categories_es },
+      cat: { recipes: recipes_cat, categories: categories_cat },
+    })
   } catch (err) {
     console.log('Error fetching the recipes: ', err)
-
-    res.json({ ups: 'There has been an error!', error: err })
+    res.status(404).json({ status: 'failed', code: 404, message: err.message })
   }
 })
 
-foodsRouter.post('/es/food', isAuthenticated, async (req, res) => {
-  const recipe = req.body
+foodsRouter.post('/', isAuthenticated, async (req, res) => {
+  const { es, cat } = req.body
 
   try {
-    const newRecipe = await Food_es.create(recipe)
+    const newEsRecipe = await Food_es.create(es)
+    const newCatRecipe = await Food_cat.create(cat)
 
-    res.json(newRecipe)
-  } catch (err) {
-    console.log('Error creating new recipe: ', err)
-
-    res.json({ ups: 'An error ocurred!', error: err })
-  }
-})
-
-foodsRouter.get('/cat/food', async (req, res) => {
-  try {
-    const recipes = await Food_cat.find()
-
-    res.json(recipes)
-  } catch (err) {
-    console.log('Error fetching the recipes: ', err)
-
-    res.json({ ups: 'There has been an error!', error: err })
-  }
-})
-
-foodsRouter.post('/cat/food', isAuthenticated, async (req, res) => {
-  const recipe = req.body
-
-  try {
-    const newRecipe = await Food_cat.create(recipe)
-
-    res.json(newRecipe)
+    res.status(200).json({
+      status: 'success',
+      code: 200,
+      message: 'Nueva receta creada!',
+      receta: { es: newEsRecipe, cat: newCatRecipe },
+    })
   } catch (err) {
     console.log('Error creating new recipe: ', err)
 
