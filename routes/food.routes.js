@@ -36,8 +36,29 @@ foodsRouter.post('/', isAuthenticated, async (req, res) => {
     })
   } catch (err) {
     console.log('Error creating new recipe: ', err)
+    if (err.name === 'ValidationError' && err.errors.price) {
+      res.status(400).json({ status: 'failed', code: 400, message: err.errors.price.message })
+    }
 
     res.json({ ups: 'An error ocurred!', error: err })
   }
+})
+
+foodsRouter.get('/join', async (req, res) => {
+  const food_es = await Food_es.find()
+  const food_cat = await Food_cat.find()
+
+  const join = []
+
+  for (let i = 0; i < food_es.length; i++) {
+    join.push({
+      name: [food_es[i].name, food_cat[i].name],
+      description: [food_es[i].description, food_cat[i].description],
+      price: food_es[i].price,
+      category: [food_es[i].category, food_cat[i].category],
+    })
+  }
+
+  res.json(join)
 })
 export default foodsRouter

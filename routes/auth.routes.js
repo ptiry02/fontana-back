@@ -15,7 +15,7 @@ authRouter.post('/login', async (req, res) => {
     const user = await Admin.findOne({ name })
 
     if (!user) {
-      res.status(404).json('No user found')
+      throw { message: 'Wrong user, try again...' }
     }
 
     const checkPass = await bcrypt.compare(password, user.password)
@@ -26,13 +26,13 @@ authRouter.post('/login', async (req, res) => {
 
     const payload = { id: user._id, user: user.name }
 
-    const token = jwt.sign(payload, tokenSecret, { algorithm: 'HS256', expiresIn: '8h' })
+    const token = jwt.sign(payload, tokenSecret, { algorithm: 'HS256', expiresIn: '1h' })
     res.cookie('access_token', token, { httpOnly: true, signed: true })
 
-    res.status(200).json({ status: 'success', code: 200, user: user.name, message: 'Welcome!' })
+    res.status(201).json({ status: true, code: 201, user: { name: user.name, id: user.id }, message: 'Welcome!' })
   } catch (err) {
     console.log('Error at login: ', err)
-    res.json({ error: err, message: 'Something went wrong...' })
+    res.status(401).json({ status: false, code: 401, message: err.message })
   }
 })
 
@@ -48,11 +48,11 @@ authRouter.post('/signup', async (req, res) => {
     res.json({ status: 'success', message: `New admin created with name ${name}` })
   } catch (err) {
     console.log('Error in signup: ', err)
-    res.status(400).json({ status: 'error', error: err, message: 'Failed to create Admin' })
+    res.status(401).json({ status: false, message: 'Failed to create Admin' })
   }
 })
 
-authRouter.post('/logout', (req, res) => {
+authRouter.get('/logout', (req, res) => {
   res.clearCookie('access_token')
   res.status(200).json({ status: 'success', code: 200, message: 'Logout successful' })
 })
@@ -62,10 +62,10 @@ authRouter.get('/verify', isAuthenticated, async (req, res) => {
 
   try {
     const user = await Admin.findById(id, { password: 0 })
-    res.status(200).json(user)
+    res.status(201).json({ status: true, code: 201, user: user.name, id: user.id })
   } catch (err) {
     console.log('There has been an error: ', err)
-    res.status(404).json({ status: 'failed' })
+    res.status(401).json({ status: false, code: 401, message: 'Unauthorised access!' })
   }
 })
 
