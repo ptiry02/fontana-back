@@ -1,15 +1,35 @@
 import { Router } from 'express'
-import { Food_es, Food_cat } from '../models/Food.model.js'
+import { Food } from '../models/Food.model.js'
 import isAuthenticated from '../midleware/jwt.middleware.js'
 
 const foodsRouter = Router()
 
 foodsRouter.get('/', async (req, res) => {
   try {
-    const recipes_es = await Food_es.find()
-    const recipes_cat = await Food_cat.find()
-    const categories_es = Food_es.schema.path('category').enumValues
-    const categories_cat = Food_cat.schema.path('category').enumValues
+    const recipes = await Food.find()
+    const allCategories = Food.schema.path('category').caster.enumValues
+
+    const recipes_es = recipes.map(item => ({
+      id: item._id,
+      name: item.name[0],
+      description: item.description[0] ? item.description[0] : null,
+      price: item.price,
+      category: item.category[0],
+    }))
+    const recipes_cat = recipes.map(item => ({
+      id: item._id,
+      name: item.name[1],
+      description: item.description[1] ? item.description[1] : null,
+      price: item.price,
+      category: item.category[1],
+    }))
+
+    const categories_es = allCategories.filter((val, i) => {
+      if (!(i % 2)) return val
+    })
+    const categories_cat = allCategories.filter((val, i) => {
+      if (i % 2) return val
+    })
 
     res.status(200).json({
       es: { recipes: recipes_es, categories: categories_es },
@@ -22,17 +42,16 @@ foodsRouter.get('/', async (req, res) => {
 })
 
 foodsRouter.post('/', isAuthenticated, async (req, res) => {
-  const { es, cat } = req.body
+  const recipe = req.body
 
   try {
-    const newEsRecipe = await Food_es.create(es)
-    const newCatRecipe = await Food_cat.create(cat)
+    const newRecipe = await Food.create(recipe)
 
     res.status(200).json({
       status: 'success',
       code: 200,
       message: 'Nueva receta creada!',
-      receta: { es: newEsRecipe, cat: newCatRecipe },
+      receta: newRecipe,
     })
   } catch (err) {
     console.log('Error creating new recipe: ', err)
@@ -40,25 +59,57 @@ foodsRouter.post('/', isAuthenticated, async (req, res) => {
       res.status(400).json({ status: 'failed', code: 400, message: err.errors.price.message })
     }
 
-    res.json({ ups: 'An error ocurred!', error: err })
+    res.json({ ups: 'An error ocurred!', error: err.message })
   }
 })
 
-foodsRouter.get('/join', async (req, res) => {
-  const food_es = await Food_es.find()
-  const food_cat = await Food_cat.find()
+foodsRouter.get('/:id', async (req, res) => {
+  const { id } = req.params
 
-  const join = []
+  try {
+    const recipe = await Food.findById(id)
 
-  for (let i = 0; i < food_es.length; i++) {
-    join.push({
-      name: [food_es[i].name, food_cat[i].name],
-      description: [food_es[i].description, food_cat[i].description],
-      price: food_es[i].price,
-      category: [food_es[i].category, food_cat[i].category],
+    res.status(200).json(recipe)
+  } catch (err) {
+    console.log('Error fetching recipe: ', err)
+    res.status(404).json({ status: 'failed', code: 404, message: err.message })
+  }
+})
+
+foodsRouter.put('/:id', isAuthenticated, async (req, res) => {
+  const { id } = req.params
+  const data = req.body
+
+  try {
+    const recipe = await Food.findByIdAndUpdate(id, data, { new: true })
+
+    res.status(200).json({
+      status: 'success',
+      code: 200,
+      message: 'Receta Actualizada!',
+      newRecipe: recipe,
     })
+  } catch (err) {
+    console.log('There has been an error: ', err)
+    res.status(404).json({ status: 'failed', code: 404, message: err.message })
   }
-
-  res.json(join)
 })
+
+foodsRouter.delete('/:id', isAuthenticated, async (req, res) => {
+  const { id } = req.params
+
+  try {
+    await Food.findByIdAndDelete(id)
+
+    res.status(200).json({
+      status: 'success',
+      code: 200,
+      message: 'Receta Eliminada!',
+    })
+  } catch (err) {
+    console.log('Error deleting recipe: ', err)
+    res.status(404).json({ status: 'failed', code: 404, message: err.message })
+  }
+})
+
 export default foodsRouter

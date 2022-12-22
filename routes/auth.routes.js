@@ -45,7 +45,7 @@ authRouter.post('/signup', async (req, res) => {
 
     await Admin.create({ name, password: hashedPass })
 
-    res.json({ status: 'success', message: `New admin created with name ${name}` })
+    res.status(200).json({ status: 'success', message: `New admin created with name ${name}` })
   } catch (err) {
     console.log('Error in signup: ', err)
     res.status(401).json({ status: false, message: 'Failed to create Admin' })
